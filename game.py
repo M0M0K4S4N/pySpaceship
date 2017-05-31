@@ -85,7 +85,7 @@ def main():
                 going = False
             elif event.type == KEYDOWN and event.key == K_ESCAPE:
                 going = False
-        print(screen)
+        
         for i in range(asteroid_count):
             if ship.collis(asteroid[i]):
                 over = True
