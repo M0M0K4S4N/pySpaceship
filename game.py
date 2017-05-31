@@ -85,11 +85,15 @@ def main():
                 going = False
             elif event.type == KEYDOWN and event.key == K_ESCAPE:
                 going = False
+            elif event.type == KEYDOWN and event.key == K_r:
+                pygame.quit()
+                main()
+                
         
         for i in range(asteroid_count):
             if ship.collis(asteroid[i]):
                 over = True
-                displayText("GAME OVER - Press Esc to quit.", wSize, background)
+                displayText("GAME OVER - Press Esc to quit, R to restart.", wSize, background)
 
 
         if over != True: allsprites.update()
