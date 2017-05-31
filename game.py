@@ -7,7 +7,7 @@ class Ship(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)  # call Sprite intializer
 
         self.image = pygame.image.load('img/ship.png')
-        self.image = pygame.transform.rotozoom(self.image, 0, 0.25)
+        self.image = pygame.transform.rotozoom(self.image, 0, 0.15)
         self.image = self.image.convert_alpha()
         self.rect = self.image.get_rect()
 
@@ -16,6 +16,10 @@ class Ship(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.center = pygame.mouse.get_pos()
+
+    def collis(self, target):
+        box = self.rect.inflate(-50, -100)
+        return box.colliderect(target.rect)
 
 
 class Asteroid(pygame.sprite.Sprite):
@@ -37,19 +41,29 @@ class Asteroid(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect()
 
+
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
         self.rect.center = random.randint(900, 1500), random.randint(-100, 900)
-        self.speed = random.randint(1, 10)
+        self.speed = random.randint(3, 10)
+
+
+def displayText(displayText, wSize, background):
+    if pygame.font:
+        font = pygame.font.Font(None, 36)
+        text = font.render(displayText, 5, (255, 255, 255))
+        textpos = text.get_rect(centerx=wSize[0] / 2, centery=wSize[1] / 2)
+        background.blit(text, textpos)
 
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((800, 600))
+    wSize = 800, 600
+    screen = pygame.display.set_mode(wSize)
     pygame.display.set_caption('Spaceship')
 
-    background = pygame.Surface(screen.get_size())
-    background.fill((0, 0, 0))
+    # background = pygame.Surface(screen.get_size())
+    background = pygame.image.load('img/background.png').convert_alpha()
 
     screen.blit(background, (0, 0))
     pygame.display.flip()
@@ -57,11 +71,12 @@ def main():
     clock = pygame.time.Clock()
     ship = Ship()
     asteroid = []
-    for i in range(10):
+    asteroid_count = 10
+    for i in range(asteroid_count):
         asteroid.append(Asteroid())
     allsprites = pygame.sprite.RenderPlain(ship, asteroid)
     going = True
-
+    over = False
     while going:
         clock.tick(60)
 
@@ -70,11 +85,18 @@ def main():
                 going = False
             elif event.type == KEYDOWN and event.key == K_ESCAPE:
                 going = False
+        print(screen)
+        for i in range(asteroid_count):
+            if ship.collis(asteroid[i]):
+                over = True
+                displayText("GAME OVER - Press Esc to quit.", wSize, background)
 
-        allsprites.update()
+
+        if over != True: allsprites.update()
 
         screen.blit(background, (0, 0))
-        allsprites.draw(screen)
+        if over != True:
+            allsprites.draw(screen)
         pygame.display.flip()
 
     pygame.quit()
